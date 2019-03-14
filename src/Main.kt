@@ -1,5 +1,8 @@
 
 import java.util.HashSet
+import java.util.HashMap
+
+
 
 
 /**
@@ -26,10 +29,26 @@ Note that the answer must be a substring, "pwke" is a subsequence and not a subs
 
 fun main(args: Array<String>) {
     val strings = arrayListOf("abcabcbb", "bbbbb", "pwwkew")
-    strings.forEach {  string ->
-        println("Length of longest substring in $string is ${lengthOfLongestSubstring(string)}")
+
+    printLongestSubstring(strings = strings, method = "All Unique") { string ->
+        lengthOfLongestSubstring(string)
     }
 
+    printLongestSubstring(strings = strings, method = "Sliding Window") { string ->
+        slidingWindow(string)
+    }
+
+    printLongestSubstring(strings = strings, method = "Sliding Window Optimized") { string ->
+        slidingWindowOptimized(string)
+    }
+
+}
+
+fun printLongestSubstring(strings: ArrayList<String>, method: String, block: (String) -> Int) {
+    strings.forEach {  string ->
+        val length = block(string)
+        println("Length of longest substring in $string is solved with $method is $length")
+    }
 }
 
 fun lengthOfLongestSubstring(s: String): Int {
@@ -49,6 +68,42 @@ fun allUnique(s: String, start: Int, end: Int): Boolean {
         set.add(ch)
     }
     return true
+}
+
+fun slidingWindow(s: String): Int {
+    val n = s.length
+    val set = HashSet<Char>()
+    var ans = 0
+    var i = 0
+    var j = 0
+    while (i < n && j < n) {
+        // try to extend the range [i, j]
+        if (!set.contains(s[j])) {
+            set.add(s[j++])
+            ans = Math.max(ans, j - i)
+        } else {
+            set.remove(s[i++])
+        }
+    }
+    return ans
+}
+
+fun slidingWindowOptimized(s: String): Int {
+    val n = s.length
+    var ans = 0
+    val map = HashMap<Char, Int>() // current index of character
+    // try to extend the range [i, j]
+    var j = 0
+    var i = 0
+    while (j < n) {
+        if (map.containsKey(s[j])) {
+            i = Math.max(map[s[j]]!!, i)
+        }
+        ans = Math.max(ans, j - i + 1)
+        map[s[j]] = j + 1
+        j++
+    }
+    return ans
 }
 
 
